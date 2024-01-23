@@ -17,31 +17,33 @@ public class DotsAndBoxesGame {
     }
 
     public boolean isGameOver() {
-        // Check if all fields on the board are filled
-        for (int field = 0; field < Board.DIM * Board.DIM; field++) {
-            if (!board.isFilled(field)) {
-                return false; // Found an unfilled field, the game is not over
+        // Check if all lines on the board are drawn
+        for (int line = 0; line < Board.DIM * (Board.DIM - 1) * 2; line++) {
+            if (!board.isLineDrawn(line, true) || !board.isLineDrawn(line, false)) {
+                return false; // Found an undrawn line, the game is not over
             }
         }
-        return true; // All fields are filled, the game is over
+        return true; // All lines are drawn, the game is over
     }
 
     public List<Integer> getValidMoves() {
         return board.getValidMoves();
     }
 
-    public boolean isValidMove(int field) {
-        return board.isField(field) && !board.isFilled(field);
+    public boolean isValidMove(int line) {
+        return board.isLine(line, true) && !board.isLineDrawn(line, true);
     }
 
-    public void doMove(int field) {
-        if (isValidMove(field)) {
-            board.fill(field);
+    public void doMove(int line) {
+        if (isValidMove(line)) {
+            board.drawLine(line, true);
+            board.drawLine(line, false);
             checkForBoxes();
             switchPlayer();
             logScores();
         }
     }
+
     private void logScores() {
         System.out.println("Current Scores:");
         System.out.println("Player 1: " + player1Score);
@@ -52,7 +54,7 @@ public class DotsAndBoxesGame {
         return board;
     }
 
-    public int getCurrentPlayer(){
+    public int getCurrentPlayer() {
         return currentPlayer;
     }
 
@@ -68,13 +70,13 @@ public class DotsAndBoxesGame {
     private void checkForBoxes() {
         for (int row = 0; row < Board.DIM - 1; row++) {
             for (int col = 0; col < Board.DIM - 1; col++) {
-                int boxTopLeft = row * Board.DIM + col;
+                int boxTopLeft = row * (Board.DIM - 1) + col;
 
                 // Check if the box is completed
-                if (board.isFilled(boxTopLeft) &&
-                        board.isFilled(boxTopLeft + 1) &&
-                        board.isFilled(boxTopLeft + Board.DIM) &&
-                        board.isFilled(boxTopLeft + Board.DIM + 1)) {
+                if (board.isLineDrawn(boxTopLeft, true) &&
+                        board.isLineDrawn(boxTopLeft + 1, true) &&
+                        board.isLineDrawn(boxTopLeft, false) &&
+                        board.isLineDrawn(boxTopLeft + Board.DIM - 1, false)) {
 
                     // Update the player's score
                     if (currentPlayer == 1) {
