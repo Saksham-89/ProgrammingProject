@@ -5,6 +5,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Represents the playing board for a game, such as Dots and Boxes.
+ * This class manages the state of the board, including filled fields and completed boxes.
+ */
+
 public class Board {
 
     public static final int DIM = 6;
@@ -13,10 +18,20 @@ public class Board {
 
     private Set<Integer> completedBoxes;
 
+    /**
+     * Constructs a new Board instance.
+     * Initializes the lists for filled fields and completed boxes.
+     */
+
     public Board() {
         filled = new ArrayList<>();
         completedBoxes = new HashSet<>();
     }
+
+    /**
+     * Creates a deep copy of this Board instance.
+     * @return A new Board instance with the same state as the current board.
+     */
 
     public Board deepCopy() {
         Board copy = new Board();
@@ -24,17 +39,39 @@ public class Board {
         return copy;
     }
 
+    /**
+     * Checks if a field is within the board.
+     * @param field The field to check.
+     * @return true if the field is within the board's dimensions, false otherwise.
+     */
+
     public boolean isField(int field) {
         return field >= 0 && field < (DIM * DIM);
     }
+
+    /**
+     * Marks a box as completed.
+     * @param boxTopLeft The top-left field number of the box.
+     */
 
     public void markBoxCompleted(int boxTopLeft){
         completedBoxes.add(boxTopLeft);
     }
 
+    /**
+     * Checks if a field is already filled.
+     * @param field The field to check.
+     * @return true if the field is filled, false otherwise.
+     */
+
     public boolean isFilled(int field) {
         return filled.contains(field);
     }
+
+    /**
+     * Returns a string representation of the board.
+     * @return A string showing the board's current state.
+     */
 
     public String toString() {
         StringBuilder boardString = new StringBuilder();
@@ -79,14 +116,25 @@ public class Board {
         return boardString.toString();
     }
 
-
+    /**
+     * Resets the board by clearing all filled fields.
+     */
     public void reset() {
         filled.clear();
     }
+    /**
+     * Checks if a box is completed.
+     * @param boxTopLeft The top-left field number of the box to check.
+     * @return true if the box is completed, false otherwise.
+     */
     public boolean isBoxCompleted(int boxTopLeft) {
         return completedBoxes.contains(boxTopLeft);
     }
 
+    /**
+     * Retrieves a list of valid moves based on the current board state.
+     * @return A list of integers representing the fields that can be filled.
+     */
     public List<Integer> getValidMoves() {
         List<Integer> validMoves = new ArrayList<>();
 
@@ -99,11 +147,21 @@ public class Board {
         return validMoves;
     }
 
+    /**
+     * Fills a specified field on the board.
+     * @param field The field to fill.
+     */
+
     public void fill(int field) {
         if (isField(field) && !isFilled(field)) {
             filled.add(field);
         }
     }
+
+    /**
+     * Main method for demonstrating the Board class.
+     * @param args Command-line arguments (not used).
+     */
 
     public static void main(String[] args) {
         Board board = new Board();

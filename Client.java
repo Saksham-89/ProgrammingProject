@@ -1,111 +1,185 @@
 package ProgrammingProject;
 
-import java.net.Socket;
-
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Client class represents a client in a network application.
+ * It manages the communication with a server using a {@link ClientConnection}.
+ * The client can send and receive various messages and notifies registered listeners accordingly.
+ * This class also provides methods to handle disconnection and manage listeners.
+ */
 public class Client {
-    private ClientConnection clientConnection;
-    private List<ClientListener> listeners;
+    private final ClientConnection clientConnection;
+    private final List<ClientListener> listeners = new ArrayList<>();
+    private static final String DESCRIPTION = "Matt's client";
 
-    public Client(Socket socket) {
-        try {
-            clientConnection = new ClientConnection(socket, this);
-            listeners = new ArrayList<>();
-            // Add listeners if needed
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Handle the exception as needed
+    /**
+     * Creates a new Client instance with the specified socket.
+     *
+     * @param socket The socket used for communication with the server.
+     * @throws IOException If an I/O error occurs while creating the client.
+     */
+    public Client(Socket socket) throws IOException {
+        clientConnection = new ClientConnection(socket, this);
+    }
+
+    /**
+     * Notifies all registered listeners about receiving a "hello" message.
+     */
+    public void receiveHello() {
+        for (ClientListener listener : listeners) {
+            listener.hello();
         }
     }
 
-    public void addListener(ClientListener listener) {
-        listeners.add(listener);
+    /**
+     * Notifies all registered listeners about receiving a "login" message.
+     */
+    public void receiveLogin() {
+        for (ClientListener listener : listeners) {
+            listener.login();
+        }
     }
 
-    public void removeListener(ClientListener listener) {
-        listeners.remove(listener);
+    /**
+     * Notifies all registered listeners about receiving an "already logged in" message.
+     */
+    public void receiveAlreadyLoggedIn() {
+        for (ClientListener listener : listeners) {
+            listener.alreadyLoggedIn();
+        }
     }
 
-    public void start() {
-        clientConnection.start();
-    }
-
+    /**
+     * Notifies all registered listeners about receiving a move message.
+     *
+     * @param move The move received from the server.
+     */
     public void receiveMove(int move) {
-        // Notify listeners about the received move
         for (ClientListener listener : listeners) {
             listener.move(move);
         }
     }
 
+    /**
+     * Notifies all registered listeners about receiving a list message.
+     *
+     * @param list The list received from the server.
+     */
     public void receiveList(String[] list) {
-        // Notify listeners about the received list
         for (ClientListener listener : listeners) {
             listener.list(list);
         }
     }
 
-    public void receiveNewGame() {
-        // Notify listeners about the start of a new game
+    /**
+     * Notifies all registered listeners about starting a new game.
+     *
+     * @param player1 The username of player 1.
+     * @param player2 The username of player 2.
+     */
+    public void receiveNewGame(String player1, String player2) {
         for (ClientListener listener : listeners) {
-            listener.newGame();
+            listener.newGame(player1, player2);
         }
     }
 
+    /**
+     * Notifies all registered listeners about the game being over.
+     *
+     * @param reason The reason for the game's end.
+     * @param winner The username of the winner.
+     */
     public void receiveGameOver(String reason, String winner) {
-        // Notify listeners about the game over event
         for (ClientListener listener : listeners) {
             listener.gameOver(reason, winner);
         }
     }
 
+    /**
+     * Sends a "hello" message to the server.
+     */
+    public void sendHello() {
+        clientConnection.sendHello();
+    }
+
+    /**
+     * Sends a move message to the server.
+     *
+     * @param move The move to be sent to the server.
+     */
     public void sendMove(int move) {
-        try {
-            clientConnection.sendMove(move);
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Handle the exception as needed
-        }
+        clientConnection.sendMove(move);
     }
 
+    /**
+     * Sends a username to the server.
+     *
+     * @param username The username to be sent to the server.
+     */
     public void sendUsername(String username) {
-        try {
-            clientConnection.sendUsername(username);
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Handle the exception as needed
-        }
+        clientConnection.sendUsername(username);
     }
 
+    /**
+     * Sends a queue message to the server.
+     */
     public void sendQueue() {
-        try {
-            clientConnection.sendQueue();
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Handle the exception as needed
-        }
+        clientConnection.sendQueue();
     }
 
+    /**
+     * Sends a list message request to the server.
+     */
     public void sendList() {
-        try {
-            clientConnection.sendList();
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Handle the exception as needed
+        clientConnection.sendList();
+    }
+
+    /**
+     * Adds a listener to be notified of events from the server.
+     *
+     * @param listener The listener to be added.
+     */
+    public synchronized void addListener(ClientListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Removes a listener from the list of listeners.
+     *
+     * @param listener The listener to be removed.
+     */
+    public synchronized void removeListener(ClientListener listener) {
+        listeners.remove(listener);
+    }
+
+    /**
+     * Notifies all listeners about the connection being lost.
+     */
+    public void handleDisconnect() {
+        for (ClientListener cl : listeners) {
+            cl.connectionLost();
         }
     }
 
-    public void handleDisconnect() {
-
-    }
-
+    /**
+     * Closes the client connection.
+     */
     public void close() {
-        // Close the client connection and perform any necessary cleanup
         clientConnection.close();
     }
 
-
-    // Other methods as needed
+    /**
+     * Gets the description of the client.
+     *
+     * @return The client description.
+     */
+    //@ ensures \result == this.DESCRIPTION;
+    //@ pure
+    public String getDescription() {
+        return DESCRIPTION;
+    }
 }
