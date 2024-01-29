@@ -307,6 +307,17 @@ public class Board {
         linePoints.add(end);
         return linePoints;
     }
+
+    public Board deepCopy(){
+        Board copy = new Board(this.DIM);
+        System.arraycopy(this.allLines, 0, copy.allLines, 0, this.allLines.length);
+
+        copy.blueScore = this.blueScore;
+        copy.redScore = this.redScore;
+        copy.currentPlayer = this.currentPlayer;
+
+        return copy;
+    }
     /**
      * Generates a string representation of the board's current state.
      * This method is typically used for displaying the board in a text-based interface.

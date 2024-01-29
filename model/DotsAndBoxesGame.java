@@ -1,11 +1,12 @@
 package ProgrammingProject.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DotsAndBoxesGame implements Game {
 
-    private final Board board;
+    private Board board;
     private final Player[] players;
     private int currentPlayer;
 
@@ -79,6 +80,14 @@ public class DotsAndBoxesGame implements Game {
         }
 
         return validMoves; // Return the list of all valid moves
+    }
+
+    public DotsAndBoxesGame deepCopy(){
+        Player[] playersCopy = Arrays.copyOf(this.players, this.players.length);
+        DotsAndBoxesGame copy = new DotsAndBoxesGame(playersCopy, this.board.getDIM());
+        copy.currentPlayer = this.currentPlayer;
+        copy.board = this.board.deepCopy();
+        return copy;
     }
 
 
