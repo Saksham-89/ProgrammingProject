@@ -88,29 +88,41 @@ public class DotsAndBoxesTUI {
         }
     }
 
-    private void executeMove(DotsAndBoxesGame game, int index) {
-        int start;
-        int end;
-        int row;
-        int col;
-        if (index % (2 * DIM - 1) < DIM - 1){
-            row = index / (2 * DIM - 1);
-            col = index % (2 * DIM - 1);
-            start = row * DIM + col;
+    private void executeMove(DotsAndBoxesGame game, int userInput) {
+        // Adjust for 0-based indexing used internally.
+        int index = userInput - 1;
+        // Correctly calculate total moves for horizontal and vertical.
+        int totalMoves = DIM * (DIM - 1) * 2; // Total moves (both horizontal and vertical)
+        int totalHorizontalMoves = DIM * (DIM - 1); // Just horizontal moves
+
+        int start, end;
+
+        if (index < totalHorizontalMoves) { // Horizontal move
+            int effectiveRow = index / (DIM - 1);
+            int effectiveCol = index % (DIM - 1);
+            start = effectiveRow * DIM + effectiveCol;
             end = start + 1;
-        } else {
-            row = index / (2 * DIM - 1);
-            col = index % (2 * DIM - 1) - DIM - 1;
-            start = row * DIM + col;
+        } else if (index < totalMoves) { // Vertical move, checking if index is within total moves range
+            index -= totalHorizontalMoves; // Adjust index for vertical calculation
+            int effectiveRow = index / (DIM - 1);
+            int effectiveCol = index % (DIM - 1);
+            start = effectiveCol * DIM + effectiveRow;
             end = start + DIM;
+        } else {
+            // If the move is out of range, it's invalid.
+            System.out.println("Invalid move");
+            return;
         }
+
         Move newMove = new DotsAndBoxesMove(game.getLine(game.getTurn()), start, end);
+
         if (game.validMove(newMove)) {
             game.doMove(newMove);
         } else {
             System.out.println("Invalid move");
         }
     }
+
 
     private void processTurn(DotsAndBoxesGame game, Scanner input) {
         Player currentPlayer = game.getTurn();
