@@ -14,6 +14,8 @@ public class DotsAndBoxesTUI {
     private static final String NAIVE_STRATEGY_KEY = "-N";
     private static final String SMART_STRATEGY_KEY = "-S";
 
+    private int DIM;
+
 
     public static void main(String[] args) {
         DotsAndBoxesTUI tui = new DotsAndBoxesTUI();
@@ -29,7 +31,7 @@ public class DotsAndBoxesTUI {
         Player player2 = createPlayer(input, "Player 2", Line.RED);
         Player[] players = {player1, player2};
 
-        int DIM = getDimension(input);
+        DIM = getDimension(input);
         DotsAndBoxesGame game = new DotsAndBoxesGame(players, DIM);
 
         while (!(game.gameOver())){
@@ -86,7 +88,22 @@ public class DotsAndBoxesTUI {
         }
     }
 
-    private void executeMove(DotsAndBoxesGame game, int start, int end) {
+    private void executeMove(DotsAndBoxesGame game, int index) {
+        int start;
+        int end;
+        int row;
+        int col;
+        if (index % (2 * DIM - 1) < DIM - 1){
+            row = index / (2 * DIM - 1);
+            col = index % (2 * DIM - 1);
+            start = row * DIM + col;
+            end = start + 1;
+        } else {
+            row = index / (2 * DIM - 1);
+            col = index % (2 * DIM - 1) - DIM - 1;
+            start = row * DIM + col;
+            end = start + DIM;
+        }
         Move newMove = new DotsAndBoxesMove(game.getLine(game.getTurn()), start, end);
         if (game.validMove(newMove)) {
             game.doMove(newMove);
@@ -101,19 +118,25 @@ public class DotsAndBoxesTUI {
 
         if (currentPlayer instanceof HumanPlayer) {
             System.out.print("Enter your move: ");
-            String move = input.nextLine();
-            int[] movePoints = parseMove(move);
-            if (movePoints != null) {
-                executeMove(game, movePoints[0], movePoints[1]);
+            while (!input.hasNextInt()) {
+                System.out.println("Please enter an integer.");
+                input.next();
             }
+            int move = input.nextInt();
+            executeMove(game, move);
         } else {
             ProgrammingProject.ai.ComputerPlayer ai = (ComputerPlayer) currentPlayer;
             Strategy strategy = ai.getStrategy();
-            String inputtedMove = strategy.determineMove(game).toString();
-            int[] movePoints = parseMove(inputtedMove);
-            if (movePoints != null) {
-                executeMove(game, movePoints[0], movePoints[1]);
-            }
+            DotsAndBoxesMove inputtedMove = strategy.determineMove(game);
+            executeAIMove(game, inputtedMove);
+        }
+    }
+
+    private void executeAIMove(DotsAndBoxesGame game, DotsAndBoxesMove move){
+        if (game.validMove(move)){
+            game.doMove(move);
+        } else {
+            System.out.println("Invalid move");
         }
     }
 
