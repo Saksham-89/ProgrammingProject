@@ -9,6 +9,10 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.function.Function;
 
+/**
+ * Represents the text user interface for the Dots and Boxes game.
+ * This class handles user interactions, game setup, and the main game loop.
+ */
 public class DotsAndBoxesTUI {
 
     private static final String NAIVE_STRATEGY_KEY = "-N";
@@ -16,12 +20,18 @@ public class DotsAndBoxesTUI {
 
     private int DIM;
 
-
+    /**
+     * The main method to start the game.
+     *
+     * @param args Command line arguments (not used).
+     */
     public static void main(String[] args) {
         DotsAndBoxesTUI tui = new DotsAndBoxesTUI();
         tui.run();
     }
-
+    /**
+     * Runs the main game loop, handling game setup and turns.
+     */
     public void run(){
         Scanner input = new Scanner(System.in);
         System.out.println("Welcome to Dots And Boxes Game!");
@@ -41,7 +51,18 @@ public class DotsAndBoxesTUI {
         displayResults(game);
 
     }
-
+    /**
+     * Creates a player based on user input. Allows selection between human and AI players.
+     *
+     * @param input Scanner for reading user input.
+     * @param playerLabel Label for the player (e.g., "Player 1").
+     * @param line The line color associated with the player.
+     * @return A Player instance corresponding to the user's choice.
+     */
+    /*@
+      @ requires input != null && playerLabel != null && (line == Line.BLUE || line == Line.RED);
+      @ ensures \result instanceof HumanPlayer || \result instanceof ComputerPlayer;
+      @*/
     private Player createPlayer(Scanner input, String playerLabel, Line line) {
         System.out.print(playerLabel + ": ");
         String playerInput = input.nextLine();
@@ -54,7 +75,17 @@ public class DotsAndBoxesTUI {
                 return new ProgrammingProject.model.HumanPlayer(playerInput, line);
         }
     }
-
+    /**
+     * Prompts the user to enter the game board dimension and validates the input.
+     *
+     * @param input Scanner for reading user input.
+     * @return A positive integer representing the dimension of the game board.
+     */
+    /*@
+      @ requires input != null;
+      @ ensures \result > 0;
+      @ signals (InputMismatchException e) true;
+      @*/
     private int getDimension(Scanner input) {
         int dim;
         while (true) {
@@ -71,23 +102,16 @@ public class DotsAndBoxesTUI {
             }
         }
     }
-
-    private int[] parseMove(String inputtedMove) {
-        String[] split = inputtedMove.split("-");
-        if (split.length != 2) {
-            System.out.println("Not a valid index");
-            return null;
-        }
-        try {
-            int start = Integer.parseInt(split[0]);
-            int end = Integer.parseInt(split[1]);
-            return new int[] { start, end };
-        } catch (NumberFormatException n) {
-            System.out.println("Invalid format try again");
-            return null;
-        }
-    }
-
+    /**
+     * Executes a move based on user input.
+     *
+     * @param game The current game instance.
+     * @param userInput The index of the move chosen by the user.
+     */
+    /*@
+      @ requires game != null && userInput > 0 && userInput <= DIM * DIM;
+      @ ensures true;
+      @*/
     private void executeMove(DotsAndBoxesGame game, int userInput) {
         // Adjust for 0-based indexing used internally.
         int index = userInput - 1;
@@ -122,8 +146,16 @@ public class DotsAndBoxesTUI {
             System.out.println("Invalid move");
         }
     }
-
-
+    /**
+     * Processes a turn for the current player.
+     *
+     * @param game The current game instance.
+     * @param input Scanner for reading user input.
+     */
+    /*@
+      @ requires game != null && input != null;
+      @ ensures true;
+      @*/
     private void processTurn(DotsAndBoxesGame game, Scanner input) {
         Player currentPlayer = game.getTurn();
         System.out.println(game.toString());
@@ -143,7 +175,16 @@ public class DotsAndBoxesTUI {
             executeAIMove(game, inputtedMove);
         }
     }
-
+    /**
+     * Specifically executes a move for an AI player.
+     *
+     * @param game The current game instance.
+     * @param move The move determined by the AI's strategy.
+     */
+    /*@
+      @ requires game != null && move != null;
+      @ ensures true;
+      @*/
     private void executeAIMove(DotsAndBoxesGame game, DotsAndBoxesMove move){
         if (game.validMove(move)){
             game.doMove(move);
@@ -151,7 +192,15 @@ public class DotsAndBoxesTUI {
             System.out.println("Invalid move");
         }
     }
-
+    /**
+     * Displays the game results, including the final board state and the winner, if any.
+     *
+     * @param game The completed game instance.
+     */
+    /*@
+      @ requires game != null;
+      @ ensures true;
+      @*/
     private void displayResults(DotsAndBoxesGame game) {
         System.out.println(game.getBoard());
 

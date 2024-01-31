@@ -1,16 +1,39 @@
 package ProgrammingProject.model;
 
 import java.util.Scanner;
-
+/**
+ * Represents a human player in the Dots and Boxes game.
+ * This class allows for human input to determine moves during the game.
+ */
 public class HumanPlayer extends AbstractPlayer {
 
-    private Line line;
-
+    private final Line line;
+    /**
+     * Constructs a HumanPlayer with a specified name and line color.
+     *
+     * @param name The name of the player.
+     * @param line The line color associated with the player.
+     */
+    /*@
+      @ requires name != null && (line == Line.BLUE || line == Line.RED);
+      @ ensures getName().equals(name) && this.line == line;
+      @*/
     public HumanPlayer(String name, Line line){
         super(name);
         this.line = line;
     }
-
+    /**
+     * Prompts the human player to enter a move and validates it.
+     * The move must be entered in the format "start-end" where start and end are integers.
+     *
+     * @param game The current state of the Dots and Boxes game.
+     * @return A valid DotsAndBoxesMove based on the player's input, or null if the input is invalid.
+     */
+    /*@
+      @ requires game != null;
+      @ ensures \result == null || game.validMove(\result);
+      @ signals (NumberFormatException) false;
+      @*/
     @Override
     public DotsAndBoxesMove determineMove(DotsAndBoxesGame game) {
         Scanner input = new Scanner(System.in);

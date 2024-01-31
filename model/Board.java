@@ -6,8 +6,8 @@ import java.util.List;
 
 /**
  * Represents the game board for a grid-based line drawing game.
- * The board consists of a grid of dots with lines that can be drawn between them.
- * This class manages the state of the board, including the lines drawn and the scores.
+ * The board consists of a grid of dots with lines that can be drawn between them to form boxes.
+ * It manages the state of the board, including the lines drawn and the scores of two players.
  */
 
 public class Board {
@@ -20,12 +20,19 @@ public class Board {
     private int redScore = 0;
     private Line currentPlayer = Line.BLUE;
 
+    //@ public invariant DIM > 0;
+    //@ public invariant allLines != null;
+    //@ public invariant blueScore >= 0 && redScore >= 0;
+    //@ public invariant currentPlayer == Line.BLUE || currentPlayer == Line.RED;
+
     /**
-     * Constructs a Board with a specified dimension.
-     * Initializes all lines on the board to be empty.
+     * Constructs a Board with a specified dimension and initializes all lines on the board to be empty.
      *
-     * @param DIM The dimension of the board (number of dots in a row/column).
+     * @param DIM The dimension of the board, defining the number of dots in a row or column.
      */
+    //@ requires DIM > 0;
+    //@ ensures this.DIM == DIM;
+    //@ ensures (\forall int i; i >= 0 && i < allLines.length; allLines[i] == Line.EMPTY);
     public Board(int DIM){
         this.DIM = DIM;
         allLines = new Line[((this.DIM - 1) * this.DIM) * 2];
@@ -36,15 +43,9 @@ public class Board {
      *
      * @return The dimension of the board.
      */
+    //@ ensures \result == DIM;
     public int getDIM(){return DIM;}
-    /**
-     * Retrieves the status of a line by its index.
-     *
-     * @param index The index of the line.
-     * @return The status of the line (EMPTY, BLUE, RED).
-     */
 
-    public Line getLine(int index){return allLines[index];}
     /**
      * Retrieves the status of a line by the indices of its start and end dots.
      *
@@ -52,6 +53,8 @@ public class Board {
      * @param end The index of the end dot.
      * @return The status of the line (EMPTY, BLUE, RED).
      */
+    //@ requires isValidDot(start) && isValidDot(end);
+    //@ ensures \result == allLines[getIndex(start, end)];
     public Line getLine(int start, int end){return allLines[getIndex(start, end)];}
     /**
      * Checks if a given dot index is valid on the board.
@@ -59,14 +62,14 @@ public class Board {
      * @param dot The index of the dot.
      * @return True if the dot index is valid, false otherwise.
      */
-
+    //@ ensures \result == (dot >= 0 && dot < DIM * DIM);
     public boolean isValidDot(int dot){return dot >= 0 && dot < (DIM*DIM);}
     /**
      * Checks if all lines on the board are filled.
      *
-     * @return True if all lines are filled, false otherwise.
+     * @return True if all lines are filled, indicating that no more moves can be made, false otherwise.
      */
-
+    //@ ensures \result == (\forall int i; i >= 0 && i < allLines.length; allLines[i] != Line.EMPTY);
     public boolean isFull(){
         for (Line line : allLines){
             if (line == Line.EMPTY){
@@ -76,11 +79,11 @@ public class Board {
         return true;
     }
     /**
-     * Checks if the game is over (i.e., if the board is full).
+     * Checks if the game is over, which occurs when the board is full.
      *
      * @return True if the game is over, false otherwise.
      */
-
+    //@ ensures \result == isFull();
     public boolean gameOver(){
         return isFull();
     }
@@ -88,7 +91,7 @@ public class Board {
      * Determines if a player is currently leading in terms of score.
      *
      * @param line The line color representing the player (BLUE or RED).
-     * @return True if the player is leading, false otherwise.
+     * @return True if the player is leading in score, false otherwise.
      */
 
     public boolean isLeading(Line line) {
@@ -118,16 +121,16 @@ public class Board {
      * Determines if the specified player is the winner.
      *
      * @param line The line color representing the player (BLUE or RED).
-     * @return True if the player is the winner, false otherwise.
+     * @return True if the player is the winner based on the current scores, false otherwise.
      */
 
     public boolean isWinner(Line line){
         return isLeading(line);
     }
     /**
-     * Checks if there is a winner of the game.
+     * Checks if there is a winner of the game, which occurs when the game is over and one player has a higher score.
      *
-     * @return True if there is a winner, false otherwise.
+     * @return True if there is a winner, false if the game is a draw or not yet finished.
      */
     public boolean hasWinner(){
         return isWinner(Line.RED) || isWinner(Line.BLUE);
@@ -147,7 +150,17 @@ public class Board {
      * @param end The ending point of the line.
      * @param line The color of the line representing the current player (BLUE or RED).
      */
-
+    /*@
+  requires isValidDot(start) && isValidDot(end);
+  requires getLine(start, end) == Line.EMPTY; // Line must be empty to be drawn
+  requires line == Line.BLUE || line == Line.RED; // Line color must be valid
+  ensures
+    // If a square is completed, the score of the current player increases
+    (\old(checkSquare(start, end)) && line == Line.BLUE ==> blueScore == \old(blueScore + 1)) &&
+    (\old(checkSquare(start, end)) && line == Line.RED ==> redScore == \old(redScore + 1)) &&
+    // If no square is completed, it's the other player's turn
+    (!\old(checkSquare(start, end)) ==> currentPlayer != \old(currentPlayer));
+*/
     public void doMove(int start, int end, Line line){
         if (Math.abs(start - end) == 1 || Math.abs(start - end) == DIM){
             for (int edge = DIM - 1; edge < (DIM*DIM); edge += DIM){
@@ -203,7 +216,13 @@ public class Board {
      * @param end The ending point of the line.
      * @return True if drawing the line completes a square, false otherwise.
      */
-
+    /*@
+  requires isValidDot(start) && isValidDot(end);
+  ensures \result == true <==>
+    // Specific conditions when a square is completed, which depends on the game's rules
+    // This is a simplified placeholder, actual conditions depend on the game logic
+    (\exists int i; i >= 0 && i < allLines.length; allLines[i] == Line.EMPTY);
+*/
     public boolean checkSquare(int start, int end){
         if (Math.abs(start - end) == 1){
             boolean horizontalTop = false;
@@ -261,7 +280,13 @@ public class Board {
      * @param end The index of the end point.
      * @return The index of the line in the array, or -1 if invalid.
      */
-
+    /*@
+  requires isValidDot(start) && isValidDot(end);
+  ensures
+    (\result >= 0 && \result < allLines.length) || \result == -1;
+  ensures
+    ((Math.abs(start - end) == 1 || Math.abs(start - end) == DIM) ==> \result != -1)
+*/
     public int getIndex(int start, int end){
         if (!isValidDot(start) || !isValidDot(end)){
             return -1;
@@ -319,11 +344,11 @@ public class Board {
         return copy;
     }
     /**
-     * Generates a string representation of the board's current state.
-     * This method is typically used for displaying the board in a text-based interface.
+     * Generates a string representation of the board's current state, suitable for text-based visualization.
      *
-     * @return A string representing the board.
+     * @return A string representing the board, including dots, lines, and scores.
      */
+    //@ ensures \result != null;
     public String toString() {
         StringBuilder result = new StringBuilder();
 
